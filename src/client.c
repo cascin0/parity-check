@@ -56,24 +56,26 @@ int main(int argc, char *argv[]) {
 
   char send_buf[SEND_BUFFER_SIZE] = {0};
 
-  // Send OK numbers
-
+  // Generate OK numbers
   for (uint8_t i = 0; i < 128; i++) {
     send_buf[i] = i | (has_even_parity(i) * 128);
   }
 
+  // Send OK numbers
   if (send(server_socket_fd, send_buf, SEND_BUFFER_SIZE, 0) == -1) {
     perror("Send failed\n");
     exit(EXIT_FAILURE);
   }
 
-  // Send altered numbers
-
+  // Alter OK numbers
   for (uint8_t i = 0; i < 128; i++) {
-    send_buf[i] = i | (has_even_parity(i) * 128);
     send_buf[i] |= 4; // Totally arbitrary
   }
 
+  // The altered numbers could be sent with the OK ones by creating
+  // a bigger buffer. In this toy example, it doesn't make a big difference.
+
+  // Send altered numbers
   if (send(server_socket_fd, send_buf, SEND_BUFFER_SIZE, 0) == -1) {
     perror("Send failed\n");
     exit(EXIT_FAILURE);
