@@ -54,20 +54,24 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  // For demonstrative purposes, the client is going to send ordered
-  // integers and randomly modify a variable number of bits of some of
-  // them. The parity check is going to be the most significant bit
-
   char send_buf[SEND_BUFFER_SIZE] = {0};
 
+  // Send OK numbers
+
   for (uint8_t i = 0; i < 128; i++) {
-    send_buf[i] = i;
+    send_buf[i] = i | (has_even_parity(i) * 128);
+  }
 
-    int even_parity = has_even_parity(i);
+  if (send(server_socket_fd, send_buf, SEND_BUFFER_SIZE, 0) == -1) {
+    perror("Send failed\n");
+    exit(EXIT_FAILURE);
+  }
 
-    // Set most significant bit to 1
-    if (!even_parity)
-      send_buf[i] |= 128;
+  // Send altered numbers
+
+  for (uint8_t i = 0; i < 128; i++) {
+    send_buf[i] = i | (has_even_parity(i) * 128);
+    send_buf[i] |= 4; // Totally arbitrary
   }
 
   if (send(server_socket_fd, send_buf, SEND_BUFFER_SIZE, 0) == -1) {

@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
          inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
   char read_buf[READ_BUFFER_SIZE] = {0};
+
   int bytes_read = read(client_fd, read_buf, READ_BUFFER_SIZE);
 
   if (bytes_read == -1) {
@@ -85,10 +86,10 @@ int main(int argc, char *argv[]) {
 
     int even_parity = has_even_parity(x);
 
-    if (even_parity) {
-      printf("OK even parity\n");
+    if (!even_parity) {
+      printf("OK odd parity\n");
     } else {
-      printf("ERROR odd parity\n");
+      printf("ERROR even parity\n");
     }
   }
 
