@@ -5,6 +5,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#define SEND_BUFFER_SIZE 128
+
 int main(int argc, char *argv[]) {
   if (argc < 3) {
     perror("Server socket ip and port must be passed as arguments\n");
@@ -48,6 +50,36 @@ int main(int argc, char *argv[]) {
   if (connect(server_socket_fd, (const struct sockaddr *)&server_socket_addr,
               sizeof(server_socket_addr)) == -1) {
     perror("Connect failed\n");
+    exit(EXIT_FAILURE);
+  }
+
+  // For demonstrative purposes, the client is going to send ordered
+  // integers and randomly modify a variable number of bits of some of
+  // them. The parity check is going to be the most significant bit
+
+  char send_buf[SEND_BUFFER_SIZE] = {0};
+
+  for (uint8_t i = 0; i < 128; i++) {
+    send_buf[i] = i;
+
+    // Zero is even
+    int even_parity = 1;
+
+    uint8_t x = i;
+    while (x) {
+      if (x & 1) {
+        even_parity = !even_parity;
+      }
+      x >>= 1;
+    }
+
+    // Set most significant bit to 1
+    if (!even_parity)
+      send_buf[i] |= 128;
+  }
+
+  if (send(server_socket_fd, send_buf, SEND_BUFFER_SIZE, 0) == -1) {
+    perror("Send failed\n");
     exit(EXIT_FAILURE);
   }
 

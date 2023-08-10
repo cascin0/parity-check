@@ -5,6 +5,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#define READ_BUFFER_SIZE 1024
+
 int main(int argc, char *argv[]) {
   if (argc < 2) {
     perror("Socket port must be passed as argument\n");
@@ -64,6 +66,39 @@ int main(int argc, char *argv[]) {
 
   printf("Accepted connection from %s at port %d\n",
          inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+
+  char read_buf[READ_BUFFER_SIZE] = {0};
+  int bytes_read = read(client_fd, read_buf, READ_BUFFER_SIZE);
+
+  if (bytes_read == -1) {
+    perror("Read error\n");
+    exit(EXIT_FAILURE);
+  }
+
+  printf("Received %d bytes:\n", bytes_read);
+  for (int i = 0; i < bytes_read; i++) {
+    uint8_t x = read_buf[i];  // With the parity bit
+    uint8_t num = x & ~(128); // Without the parity bit
+
+    printf("received: %u, num: %u ", x, num);
+
+    // Zero is even
+    int even_parity = 1;
+
+    uint8_t y = x;
+    while (y) {
+      if (y & 1) {
+        even_parity = !even_parity;
+      }
+      y >>= 1;
+    }
+
+    if (even_parity) {
+      printf("OK even parity\n");
+    } else {
+      printf("ERROR odd parity\n");
+    }
+  }
 
   if (close(socket_fd) == -1) {
     perror("Couldn't close the socket\n");
