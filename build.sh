@@ -2,5 +2,5 @@
 
 mkdir -p build
 
-clang src/server.c -o build/server
-clang src/client.c -o build/client
+gcc src/server.c -o build/server
+gcc src/client.c -o build/client
