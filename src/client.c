@@ -1,3 +1,4 @@
+#include "parity.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -6,14 +7,6 @@
 #include <unistd.h>
 
 #define SEND_BUFFER_SIZE 128
-
-static inline int has_even_parity(uint8_t x) {
-  x ^= x >> 4;
-  x ^= x >> 2;
-  x ^= x >> 1;
-
-  return (~x) & 1;
-}
 
 int main(int argc, char *argv[]) {
   if (argc < 3) {

@@ -2,5 +2,6 @@
 
 mkdir -p build
 
-gcc src/server.c -o build/server
-gcc src/client.c -o build/client
+gcc src/parity.c -c -o build/parity.o
+gcc src/server.c build/parity.o -o build/server
+gcc src/client.c build/parity.o -o build/client
