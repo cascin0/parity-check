@@ -1,5 +1,5 @@
 # parity-check
-This is simple demo to better understand what parity check is and how it works in the context of network system.
+This is simple demo to better understand what parity check is and how it works in the context of network systems.
 
 # How to run
 Compile using `./build.sh`.
