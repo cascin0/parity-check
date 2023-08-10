@@ -62,16 +62,12 @@ int main(int argc, char *argv[]) {
   for (uint8_t i = 0; i < 128; i++) {
     send_buf[i] = i;
 
-    // Zero is even
-    int even_parity = 1;
-
     uint8_t x = i;
-    while (x) {
-      if (x & 1) {
-        even_parity = !even_parity;
-      }
-      x >>= 1;
-    }
+    x ^= x >> 4;
+    x ^= x >> 2;
+    x ^= x >> 1;
+
+    int even_parity = (~x) & 1;
 
     // Set most significant bit to 1
     if (!even_parity)

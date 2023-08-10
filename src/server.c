@@ -80,18 +80,14 @@ int main(int argc, char *argv[]) {
     uint8_t x = read_buf[i];  // With the parity bit
     uint8_t num = x & ~(128); // Without the parity bit
 
-    printf("received: %u, num: %u ", x, num);
-
-    // Zero is even
-    int even_parity = 1;
+    printf("received: %u, num: %u, ", x, num);
 
     uint8_t y = x;
-    while (y) {
-      if (y & 1) {
-        even_parity = !even_parity;
-      }
-      y >>= 1;
-    }
+    y ^= y >> 4;
+    y ^= y >> 2;
+    y ^= y >> 1;
+
+    int even_parity = (~y) & 1;
 
     if (even_parity) {
       printf("OK even parity\n");
