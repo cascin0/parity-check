@@ -7,6 +7,14 @@
 
 #define SEND_BUFFER_SIZE 128
 
+static inline int has_even_parity(uint8_t x) {
+  x ^= x >> 4;
+  x ^= x >> 2;
+  x ^= x >> 1;
+
+  return (~x) & 1;
+}
+
 int main(int argc, char *argv[]) {
   if (argc < 3) {
     perror("Server socket ip and port must be passed as arguments\n");
@@ -62,12 +70,7 @@ int main(int argc, char *argv[]) {
   for (uint8_t i = 0; i < 128; i++) {
     send_buf[i] = i;
 
-    uint8_t x = i;
-    x ^= x >> 4;
-    x ^= x >> 2;
-    x ^= x >> 1;
-
-    int even_parity = (~x) & 1;
+    int even_parity = has_even_parity(i);
 
     // Set most significant bit to 1
     if (!even_parity)

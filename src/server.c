@@ -7,6 +7,14 @@
 
 #define READ_BUFFER_SIZE 1024
 
+static inline int has_even_parity(uint8_t x) {
+  x ^= x >> 4;
+  x ^= x >> 2;
+  x ^= x >> 1;
+
+  return (~x) & 1;
+}
+
 int main(int argc, char *argv[]) {
   if (argc < 2) {
     perror("Socket port must be passed as argument\n");
@@ -82,12 +90,7 @@ int main(int argc, char *argv[]) {
 
     printf("received: %u, num: %u, ", x, num);
 
-    uint8_t y = x;
-    y ^= y >> 4;
-    y ^= y >> 2;
-    y ^= y >> 1;
-
-    int even_parity = (~y) & 1;
+    int even_parity = has_even_parity(x);
 
     if (even_parity) {
       printf("OK even parity\n");
