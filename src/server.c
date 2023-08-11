@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include "socket.h"
 
 #define READ_BUFFER_SIZE 1024
 
@@ -33,40 +34,20 @@ int main(int argc, char *argv[])
     exit(EXIT_FAILURE);
   }
 
-  int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+  Socket server_socket;
+  create_server_socket(socket_port, &server_socket);
 
-  if (socket_fd == -1)
-  {
-    perror("Couldn't create the socket\n");
-    exit(EXIT_FAILURE);
-  }
-
-  struct sockaddr_in socket_addr;
-  socket_addr.sin_family = AF_INET;
-  socket_addr.sin_addr.s_addr = INADDR_ANY; // All local interfaces
-  socket_addr.sin_port = htons(socket_port);
-
-  if (bind(socket_fd, (const struct sockaddr *)&socket_addr,
-           sizeof(socket_addr)) == -1)
-  {
-    perror("Couldn't bind the socket\n");
-    exit(EXIT_FAILURE);
-  }
+  bind_server_socket(&server_socket);
 
   // For simplicity, the server only accepts a single incoming connection
-  if (listen(socket_fd, 1) == -1)
-  {
-    perror("Listening failed\n");
-    exit(EXIT_FAILURE);
-  }
+  server_socket_listen(&server_socket, 1);
 
-  printf("Listening at port %d\n", ntohs(socket_addr.sin_port));
+  printf("Listening at port %d\n", ntohs(server_socket.address.sin_port));
 
   struct sockaddr_in client_addr;
   socklen_t client_addr_len = sizeof(client_addr);
 
-  int client_fd =
-      accept(socket_fd, (struct sockaddr *)&client_addr, &client_addr_len);
+  int client_fd = accept(server_socket.file_descriptor, (struct sockaddr *)&client_addr, &client_addr_len);
 
   if (client_fd == -1)
   {
@@ -78,14 +59,7 @@ int main(int argc, char *argv[])
          inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
   char read_buf[READ_BUFFER_SIZE] = {0};
-
-  int bytes_read = read(client_fd, read_buf, READ_BUFFER_SIZE);
-
-  if (bytes_read == -1)
-  {
-    perror("Read error\n");
-    exit(EXIT_FAILURE);
-  }
+  int bytes_read = socket_read(client_fd, read_buf, READ_BUFFER_SIZE);
 
   printf("Received %d bytes:\n", bytes_read);
   for (int i = 0; i < bytes_read; i++)
@@ -107,7 +81,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  if (close(socket_fd) == -1)
+  if (close(server_socket.file_descriptor) == -1)
   {
     perror("Couldn't close the socket\n");
     exit(EXIT_FAILURE);

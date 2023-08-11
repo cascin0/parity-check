@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define SEND_BUFFER_SIZE 128
+#define SEND_BUFFER_SIZE 256
 
 int main(int argc, char *argv[])
 {
@@ -70,21 +70,12 @@ int main(int argc, char *argv[])
     send_buf[i] = i | (has_even_parity(i) * 128);
   }
 
-  // Send OK numbers
-  if (send(server_socket_fd, send_buf, SEND_BUFFER_SIZE, 0) == -1)
-  {
-    perror("Send failed\n");
-    exit(EXIT_FAILURE);
-  }
-
-  // Alter OK numbers
+  // Send (maybe) altered numbers
   for (uint8_t i = 0; i < 128; i++)
   {
-    send_buf[i] |= 4; // Totally arbitrary
+    // Totally arbitrary bit alteration
+    send_buf[i + 128] = send_buf[i] | 4;
   }
-
-  // The altered numbers could be sent with the OK ones by creating
-  // a bigger buffer. In this toy example, it doesn't make a big difference.
 
   // Send altered numbers
   if (send(server_socket_fd, send_buf, SEND_BUFFER_SIZE, 0) == -1)
