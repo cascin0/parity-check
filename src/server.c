@@ -8,11 +8,15 @@
 
 #define READ_BUFFER_SIZE 1024
 
-int main(int argc, char *argv[]) {
-  if (argc < 2) {
+int main(int argc, char *argv[])
+{
+  if (argc < 2)
+  {
     perror("Socket port must be passed as argument\n");
     exit(EXIT_FAILURE);
-  } else if (argc > 2) {
+  }
+  else if (argc > 2)
+  {
     perror("Too many arguments\n");
     exit(EXIT_FAILURE);
   }
@@ -23,14 +27,16 @@ int main(int argc, char *argv[]) {
   // other than a number, since 'atoi' returns '0' for invalid arguments.
   // Checking for the specific error might be considererd, but the output
   // message seems good enough
-  if (socket_port < 1024 || socket_port > 49151) {
+  if (socket_port < 1024 || socket_port > 49151)
+  {
     perror("Invalid socket port, insert one in the range 1024-49151\n");
     exit(EXIT_FAILURE);
   }
 
   int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-  if (socket_fd == -1) {
+  if (socket_fd == -1)
+  {
     perror("Couldn't create the socket\n");
     exit(EXIT_FAILURE);
   }
@@ -41,13 +47,15 @@ int main(int argc, char *argv[]) {
   socket_addr.sin_port = htons(socket_port);
 
   if (bind(socket_fd, (const struct sockaddr *)&socket_addr,
-           sizeof(socket_addr)) == -1) {
+           sizeof(socket_addr)) == -1)
+  {
     perror("Couldn't bind the socket\n");
     exit(EXIT_FAILURE);
   }
 
   // For simplicity, the server only accepts a single incoming connection
-  if (listen(socket_fd, 1) == -1) {
+  if (listen(socket_fd, 1) == -1)
+  {
     perror("Listening failed\n");
     exit(EXIT_FAILURE);
   }
@@ -60,7 +68,8 @@ int main(int argc, char *argv[]) {
   int client_fd =
       accept(socket_fd, (struct sockaddr *)&client_addr, &client_addr_len);
 
-  if (client_fd == -1) {
+  if (client_fd == -1)
+  {
     perror("Accept failed\n");
     exit(EXIT_FAILURE);
   }
@@ -72,13 +81,15 @@ int main(int argc, char *argv[]) {
 
   int bytes_read = read(client_fd, read_buf, READ_BUFFER_SIZE);
 
-  if (bytes_read == -1) {
+  if (bytes_read == -1)
+  {
     perror("Read error\n");
     exit(EXIT_FAILURE);
   }
 
   printf("Received %d bytes:\n", bytes_read);
-  for (int i = 0; i < bytes_read; i++) {
+  for (int i = 0; i < bytes_read; i++)
+  {
     uint8_t x = read_buf[i];  // With the parity bit
     uint8_t num = x & ~(128); // Without the parity bit
 
@@ -86,14 +97,18 @@ int main(int argc, char *argv[]) {
 
     int even_parity = has_even_parity(x);
 
-    if (!even_parity) {
+    if (!even_parity)
+    {
       printf("OK odd parity\n");
-    } else {
+    }
+    else
+    {
       printf("ERROR even parity\n");
     }
   }
 
-  if (close(socket_fd) == -1) {
+  if (close(socket_fd) == -1)
+  {
     perror("Couldn't close the socket\n");
     exit(EXIT_FAILURE);
   }
