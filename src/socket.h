@@ -11,11 +11,14 @@ typedef struct
 
 static void handle_error(char *error_message);
 
-void create_server_socket(int port, Socket *server_socket);
-void bind_server_socket(Socket *server_socket);
-void server_socket_listen(Socket *server_socket, int backlog);
+void socket_create(int port, Socket *sock);
 
-int socket_accept(Socket *socket, struct sockaddr *addr, socklen_t *addrlen);
+void socket_bind(Socket *sock);
+void socket_listen(Socket *sock, int backlog);
+void socket_connect(Socket *sock);
+
+int socket_accept(Socket *sock, struct sockaddr *addr, socklen_t *addrlen);
 int socket_read(int fd, char *buf, size_t count);
+void socket_send(int fd, char *buf, size_t count);
 
 #endif

@@ -35,12 +35,12 @@ int main(int argc, char *argv[])
   }
 
   Socket server_socket;
-  create_server_socket(socket_port, &server_socket);
+  socket_create(socket_port, &server_socket);
 
-  bind_server_socket(&server_socket);
+  socket_bind(&server_socket);
 
   // For simplicity, the server only accepts a single incoming connection
-  server_socket_listen(&server_socket, 1);
+  socket_listen(&server_socket, 1);
 
   printf("Listening at port %d\n", ntohs(server_socket.address.sin_port));
 
