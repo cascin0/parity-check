@@ -25,3 +25,5 @@ Which tells:
 1. The raw `uint8_t` the server received, including the parity bit
 2. The number the server received, excluding the parity bit
 3. If the parity of the raw `uint8_t` is the expected one (odd in this case)
+
+After receiving these messages, the server will gracefully close.
