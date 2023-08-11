@@ -47,13 +47,7 @@ int main(int argc, char *argv[])
   struct sockaddr_in client_addr;
   socklen_t client_addr_len = sizeof(client_addr);
 
-  int client_fd = accept(server_socket.file_descriptor, (struct sockaddr *)&client_addr, &client_addr_len);
-
-  if (client_fd == -1)
-  {
-    perror("Accept failed\n");
-    exit(EXIT_FAILURE);
-  }
+  int client_fd = socket_accept(&server_socket, (struct sockaddr *)&client_addr, &client_addr_len);
 
   printf("Accepted connection from %s at port %d\n",
          inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));

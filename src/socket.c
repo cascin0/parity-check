@@ -40,14 +40,22 @@ void server_socket_listen(Socket *server_socket, int backlog)
     handle_error("Listen failed\n");
 }
 
+int socket_accept(Socket *socket, struct sockaddr *addr, socklen_t *addrlen)
+{
+  int fd = accept(socket->file_descriptor, addr, addrlen);
+
+  if (fd == -1)
+    handle_error("Accept failed\n");
+
+  return fd;
+}
+
 int socket_read(int fd, char *buf, size_t count)
 {
   int bytes_read = read(fd, buf, count);
+
   if (bytes_read == -1)
-  {
-    handle_error("Read error\n");
-    return 0; // Not reachable if the program exits
-  }
-  else
-    return bytes_read;
+    handle_error("Read errror\n");
+
+  return bytes_read;
 }
