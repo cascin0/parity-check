@@ -10,9 +10,9 @@ static void handle_error(char *error_message)
   exit(EXIT_FAILURE);
 }
 
-void socket_create(int port, Socket *sock)
+void socket_create(int port, int type, int flags, Socket *sock)
 {
-  int file_descriptor = socket(AF_INET, SOCK_STREAM, 0);
+  int file_descriptor = socket(AF_INET, type, flags);
   if (file_descriptor == -1)
     handle_error("Could not create the socket\n");
   else
@@ -22,6 +22,7 @@ void socket_create(int port, Socket *sock)
   server_socket_address.sin_family = AF_INET;
   server_socket_address.sin_addr.s_addr = INADDR_ANY; // All local interfaces
   server_socket_address.sin_port = htons(port);
+
   sock->address = server_socket_address;
 }
 
@@ -34,43 +35,22 @@ void socket_bind(Socket *sock)
     handle_error("Could not bind the socket\n");
 }
 
-void socket_listen(Socket *sock, int backlog)
+int socket_recvfrom(int fd, char *buf, size_t buf_len, struct sockaddr *addr, socklen_t *addr_len)
 {
-  if (listen(sock->file_descriptor, backlog) == -1)
-    handle_error("Listen failed\n");
-}
-
-void socket_connect(Socket *sock)
-{
-  int fd = sock->file_descriptor;
-  struct sockaddr_in addr = sock->address;
-
-  if (connect(fd, (const struct sockaddr *)&addr, sizeof(addr)) == -1)
-    handle_error("Connect failed\n");
-}
-
-int socket_accept(Socket *sock, struct sockaddr *addr, socklen_t *addrlen)
-{
-  int fd = accept(sock->file_descriptor, addr, addrlen);
-
-  if (fd == -1)
-    handle_error("Accept failed\n");
-
-  return fd;
-}
-
-int socket_read(int fd, char *buf, size_t count)
-{
-  int bytes_read = read(fd, buf, count);
+  int bytes_read = recvfrom(fd, buf, buf_len, 0, addr, addr_len);
 
   if (bytes_read == -1)
-    handle_error("Read errror\n");
+    handle_error("Recvfrom failed\n");
 
   return bytes_read;
 }
 
-void socket_send(int fd, char *buf, size_t count)
+int socket_sendto(int fd, char *buf, size_t buf_len, struct sockaddr *addr, socklen_t addr_len)
 {
-  if (send(fd, buf, count, 0) == -1)
-    handle_error("Send failed\n");
+  int bytes_sent = sendto(fd, buf, buf_len, 0, addr, addr_len);
+
+  if (bytes_sent == -1)
+    handle_error("Sendto failed\n");
+
+  return bytes_sent;
 }
